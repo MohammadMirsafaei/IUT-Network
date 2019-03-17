@@ -74,8 +74,8 @@ class signup(BaseHandler):
 
         if not self.check_user(username):
             api_token = str(hexlify(os.urandom(16)))
-            user_id = self.db.execute("INSERT INTO users (username, password, fname, lname ,api) "
-                                     "values (%s,%s,%s,%s,%s) "
+            user_id = self.db.execute("INSERT INTO users (username, password, fname, lname ,api, role) "
+                                     "values (%s,%s,%s,%s,%s,0) "
                                      , username,password,fname,lanme,api_token)
 
             output = {   'message': 'Signed Up Successfully',
