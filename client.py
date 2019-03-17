@@ -9,13 +9,6 @@ def __api__(command,query_string):
     return 'http://localhost:6060/' + command + '?' + query_string
 
 
-def getStatus(code):
-    if code == 0:
-        return 'Open'
-    elif code == 1:
-        return 'Wating'
-    else:
-        return 'Closed'
 
 def clear():
     if platform.system() == 'Windows':
@@ -90,13 +83,21 @@ while True:
                     for i in range(int(re.findall(r'\d+',res['tickets'])[0])):
                         print('Subject : '+res['block '+str(i)]['subject'])
                         print('Body : '+res['block '+str(i)]['body'])
-                        print('Status : '+getStatus(res['block '+str(i)]['status']))
+                        print('Status : '+res['block '+str(i)]['status'])
                         print('Id : '+str(res['block '+str(i)]['id']))
                         print('Date : '+res['block '+str(i)]['date'])
                         print('----------------')
                     print("press enter to return")
                     sys.stdin.readline()
-
+            if choice == '3':
+                clear()
+                print('Please enter the ticket id:')
+                id = sys.stdin.readline()
+                qs = 'token='+API_KEY+'&id='+str(id)
+                res = requests.get(__api__('closeticket',qs)).json()
+                if res['code'] == '200':
+                    print(res['message'])
+                    time.sleep(2)
             if choice == '4':
                 qs = 'username='+USERNAME+'&password='+PASSWORD
                 res = requests.get(__api__('logout',qs)).json()
