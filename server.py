@@ -96,7 +96,9 @@ class signup(BaseHandler):
                         'code': '200' }
             self.write(output)
         else:
-            output = {'status': 'User Exist'}
+            output = {'message': 'User Exist',
+                        'code':'406'}
+            self.set_status(406)
             self.write(output)
     
 class login(BaseHandler):
