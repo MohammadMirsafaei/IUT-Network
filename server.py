@@ -28,6 +28,7 @@ class Application(tornado.web.Application):
             (r"/closeticket", closeticket),
             (r"/getticketmod", getticketmod), 
             (r"/restoticketmod", restoticketmod),
+            (r"/changestatus", chagnestatus),
             (r"/h", h), # testing 
             (r".*", defaulthandler),
         ]
@@ -307,6 +308,38 @@ class restoticketmod(BaseHandler):
             }
             self.set_status(401)
             self.write(output)
+
+
+class chagnestatus(BaseHandler):
+    def get(self):
+        token = str(self.get_argument('token'))
+        id = str(self.get_argument('id'))
+        status = str(self.get_argument('status'))
+
+        if self.check_api(token):
+            if self.is_admin(token):
+                self.db.execute("update tickets set status=%s where id=%s",status,id)
+                output = {
+                    'message':'Status Ticket with id -'+str(id)+'- Changed Successfully',
+                    'code':'200'
+                }
+                self.write(output)
+            else:
+                output = {
+                'message':'Forbidden',
+                'code':'403'
+                }
+                self.set_status(403)
+                self.write(output) 
+        else:
+            output = {
+            'message':'Invalid token',
+            'code':'401'
+            }
+            self.set_status(401)
+            self.write(output)
+
+
 
 
 def main():
