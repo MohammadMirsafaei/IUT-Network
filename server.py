@@ -23,6 +23,7 @@ class Application(tornado.web.Application):
             #GET METHOD :
             (r"/signup", signup),
             (r"/login", login),
+            (r"/logout", logout),
             (r"/sendticket", sendticket),
             (r"/getticketcli", getticketcli),
             (r"/closeticket", closeticket),
