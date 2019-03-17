@@ -22,8 +22,11 @@ def menu():
     1. Send Ticket
     2. See Last Tickets
     3. Close a Ticket
-    4. Logout
-    5. Exit
+    4. See Last Tickets (Admin Only)
+    5. Answer a ticket (Admin Only)
+    6. Change a ticket status (Admin Only)
+    7. Logout
+    8. Exit
     """)
 
 
@@ -99,9 +102,56 @@ while True:
                     print(res['message'])
                     time.sleep(2)
             if choice == '4':
+                clear()
+                qs = 'token='+API_KEY
+                res = requests.get(__api__('getticketmod',qs)).json()
+                if res['code'] == '200':
+                    print(res['tickets'])
+                    print('----------------')
+                    for i in range(int(re.findall(r'\d+',res['tickets'])[0])):
+                        print('Subject : '+res['block '+str(i)]['subject'])
+                        print('Body : '+res['block '+str(i)]['body'])
+                        print('Status : '+res['block '+str(i)]['status'])
+                        print('Id : '+str(res['block '+str(i)]['id']))
+                        print('Date : '+res['block '+str(i)]['date'])
+                        print('----------------')
+                    print("press enter to return")
+                    sys.stdin.readline()
+                elif res['code'] == '403':
+                    print("Your not admin")
+                    time.sleep(2)
+            if choice == '5':
+                clear()
+                print("Please enter ticket id:")
+                id = sys.stdin.readline()
+                print('Answer:')
+                answer = sys.stdin.readline()
+                qs = 'token='+API_KEY+'&id='+str(id)+'&body='+answer
+                res = requests.get(__api__('restoticketmod',qs)).json()
+                if res['code'] == '200':
+                    print(res['message'])
+                    time.sleep(2)
+                elif res['code'] == '403':
+                    print("Your not admin")
+                    time.sleep(2)
+            if choice == '6':
+                clear()
+                print('Enter ticket id:')
+                id = sys.stdin.readline()
+                print('Enter status (0:Open,1:Waiting,2:Closed) :')
+                status = sys.stdin.readline()[:-1]
+                qs = 'token='+API_KEY+'&id='+str(id)+'&status='+status
+                res = requests.get(__api__('changestatus',qs)).json()
+                if res['code'] == '200':
+                    print(res['message'])
+                    time.sleep(2)
+                elif res['code'] == '403':
+                    print('Your not admin')
+                    time.sleep(2)
+            if choice == '7':
+                clear()
                 qs = 'username='+USERNAME+'&password='+PASSWORD
                 res = requests.get(__api__('logout',qs)).json()
-                
                 if res['code'] == '200':
                     print(res['message'])
                     API_KEY = ''
@@ -109,7 +159,7 @@ while True:
                     PASSWORD = ''
                     time.sleep(1)
                     break
-            if choice == '5':
+            if choice == '8':
                 sys.exit()
 
     elif choice[:-1] == '2':

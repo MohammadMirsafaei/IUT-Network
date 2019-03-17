@@ -321,7 +321,7 @@ class chagnestatus(BaseHandler):
     def get(self):
         token = str(self.get_argument('token'))
         id = str(self.get_argument('id'))
-        status = str(self.get_argument('status'))
+        status = str(int(self.get_argument('status')))
 
         if self.check_api(token):
             if self.is_admin(token):
