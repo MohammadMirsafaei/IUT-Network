@@ -158,14 +158,43 @@ class sendticket(BaseHandler):
             }
             self.set_status(401)
             self.write(output)
-        
+
+
+def getStatus(code):
+    if code == 0:
+        return 'Open'
+    elif code == 1:
+        return 'Wating'
+    else:
+        return 'Closed'
+
 # Get Ticket CLI
 class getticketcli(BaseHandler):
     def get(self):
         token = str(self.get_argument('token'))
 
         if self.check_api(token):
-            return
+            user_id = int(self.db.get("select ID from users where api=%s",token)['ID'])
+            tickets = self.db.query("select * from tickets where userID=%s",user_id)
+            tickets_num = len(tickets)
+            output = {
+                'tickets':'There are -'+str(tickets_num)+'- Tickets',
+                'code' : '200',
+            }
+            i=0
+            for ticket in tickets:
+                out = {
+                    'subject' : ticket.title,
+                    'body' : ticket.body,
+                    'status' : getStatus(ticket.status),
+                    'id' : ticket.ID,
+                    'date': ticket.date.strftime("%Y-%m-%d %H:%M:%S"),
+                }
+                output['block '+str(i)] = out
+                i+=1
+            
+            self.write(output)
+
         else:
             output = {
                 'message':'Invalid token',
