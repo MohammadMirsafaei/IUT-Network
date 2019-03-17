@@ -22,6 +22,8 @@ class Application(tornado.web.Application):
             #GET METHOD :
             (r"/signup", signup),
             (r"/login", login),
+            (r"/sendticket", sendticket),
+            (r"/h", h),
             (r".*", defaulthandler),
         ]
         settings = dict()
@@ -128,6 +130,38 @@ class logout(BaseHandler):
             self.set_status(401)
             self.write(output)
 
+# SendTIcket
+class sendticket(BaseHandler):
+    def get(self):
+        token = str(self.get_argument('token'))
+        subject = str(self.get_argument('subject'))
+        body = str(self.get_argument('body'))
+
+        if self.check_api(token):
+            user_id = int(self.db.get("select ID from users where api=%s",token)['ID'])
+            ticket_id = self.db.execute("INSERT INTO tickets (title, body, userID, status) "
+                                     "values (%s,%s,%s,%s) "
+                                     , subject,body,user_id,0)
+            output = {
+                'message':'Tikcet Snet Successfully',
+                'id':ticket_id,
+                'code':'200'
+            }
+            self.write(output)
+        else:
+            output = {
+                'message':'Invalid token',
+                'code':'401'
+            }
+            self.set_status(401)
+            self.write(output)
+        
+
+
+class h(BaseHandler):
+    def get(self):
+        row = self.db.get("SELECT * from users where username = %s",'amir')
+        self.write({'u':row['username']})
 
 
 
