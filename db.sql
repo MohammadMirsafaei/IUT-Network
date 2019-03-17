@@ -18,9 +18,12 @@ CREATE TABLE `tickets` (
     `status` int(11) NOT NULL,
     `userID` int(11) NOT NULL,
     `date` datetime NOT NULL,
+    `answare` varchar(100),
     FOREIGN KEY (`userID`) References `users` (`ID`),
     PRIMARY KEY (`ID`)
 )ENGINE=InnoDB;
+
+
 
 INSERT INTO `users` VALUES (1,'amir','11041104','','','8534780b4edccd5904fe6d6110b76624',1);
 INSERT INTO `users` VALUES (2,'ali','1','','','8534780b4edccd5904fe6d6110b22624',0);

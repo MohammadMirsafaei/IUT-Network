@@ -26,7 +26,8 @@ class Application(tornado.web.Application):
             (r"/sendticket", sendticket),
             (r"/getticketcli", getticketcli),
             (r"/closeticket", closeticket),
-            (r"/getticketmod", getticketmod),
+            (r"/getticketmod", getticketmod), 
+            (r"/restoticketmod", restoticketmod),
             (r"/h", h), # testing 
             (r".*", defaulthandler),
         ]
@@ -269,6 +270,36 @@ class getticketmod(BaseHandler):
                 }
                 self.set_status(403)
                 self.write(output)    
+        else:
+            output = {
+                'message':'Invalid token',
+                'code':'401'
+            }
+            self.set_status(401)
+            self.write(output)
+
+#restoticketmod
+class restoticketmod(BaseHandler):
+    def get(self):
+        token = str(self.get_argument('token'))
+        id = int(self.get_argument('id'))
+        body = str(self.get_argument('body'))
+
+        if self.check_api(token):
+            if self.is_admin(token):
+                self.db.execute("update tickets set answare=%s where id=%s",body,id)
+                output = {
+                    'message' : 'Response To Ticket -'+str(id)+'- Sent Successfully',
+                    'code': '200'
+                }
+                self.write(output)
+            else:
+                output = {
+                'message':'Forbidden',
+                'code':'403'
+                }
+                self.set_status(403)
+                self.write(output)  
         else:
             output = {
                 'message':'Invalid token',
