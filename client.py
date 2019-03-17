@@ -1,6 +1,6 @@
 import sys,platform,os
 import requests,time
-
+import re
 
 API_KEY=''
 USERNAME=''
@@ -9,6 +9,13 @@ def __api__(command,query_string):
     return 'http://localhost:6060/' + command + '?' + query_string
 
 
+def getStatus(code):
+    if code == 0:
+        return 'Open'
+    elif code == 1:
+        return 'Wating'
+    else:
+        return 'Closed'
 
 def clear():
     if platform.system() == 'Windows':
@@ -73,6 +80,23 @@ while True:
                     print('id : '+str(res['id']))
                     time.sleep(2)
                     continue
+            if choice == '2':
+                clear()
+                qs = 'token='+API_KEY
+                res = requests.get(__api__('getticketcli',qs)).json()
+                if res['code'] == '200':
+                    print(res['tickets'])
+                    print('----------------')
+                    for i in range(int(re.findall(r'\d+',res['tickets'])[0])):
+                        print('Subject : '+res['block '+str(i)]['subject'])
+                        print('Body : '+res['block '+str(i)]['body'])
+                        print('Status : '+getStatus(res['block '+str(i)]['status']))
+                        print('Id : '+str(res['block '+str(i)]['id']))
+                        print('Date : '+res['block '+str(i)]['date'])
+                        print('----------------')
+                    print("press enter to return")
+                    sys.stdin.readline()
+
             if choice == '4':
                 qs = 'username='+USERNAME+'&password='+PASSWORD
                 res = requests.get(__api__('logout',qs)).json()
