@@ -26,6 +26,7 @@ class Application(tornado.web.Application):
             (r"/sendticket", sendticket),
             (r"/getticketcli", getticketcli),
             (r"/closeticket", closeticket),
+            (r"/getticketmod", getticketmod),
             (r"/h", h), # testing 
             (r".*", defaulthandler),
         ]
@@ -56,6 +57,12 @@ class BaseHandler(tornado.web.RequestHandler):
     def check_auth(self,username,password):
         resuser = self.db.get("SELECT * from users where username = %s and password = %s", username,password)
         if resuser:
+            return True
+        else:
+            return False
+    def is_admin(self,token):
+        res = int(self.db.get("select role from users where api=%s",token)['role'])
+        if res == 1:
             return True
         else:
             return False
@@ -230,6 +237,45 @@ class closeticket(BaseHandler):
             self.set_status(401)
             self.write(output)
 
+class getticketmod(BaseHandler):
+    def get(self):
+        token = str(self.get_argument('token'))
+
+        if self.check_api(token):
+            if self.is_admin(token):
+                tickets = self.db.query("select * from tickets")
+                tickets_num = len(tickets)
+                output = {
+                    'tickets':'There are -'+str(tickets_num)+'- Tickets',
+                    'code' : '200',
+                }
+                i=0
+                for ticket in tickets:
+                    out = {
+                        'subject' : ticket.title,
+                        'body' : ticket.body,
+                        'status' : getStatus(ticket.status),
+                        'id' : ticket.ID,
+                        'date': ticket.date.strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+                    output['block '+str(i)] = out
+                    i+=1
+                
+                self.write(output)
+            else:
+                output = {
+                'message':'Forbidden',
+                'code':'403'
+                }
+                self.set_status(403)
+                self.write(output)    
+        else:
+            output = {
+                'message':'Invalid token',
+                'code':'401'
+            }
+            self.set_status(401)
+            self.write(output)
 
 
 def main():
