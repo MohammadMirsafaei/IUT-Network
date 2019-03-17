@@ -78,7 +78,7 @@ class defaulthandler(BaseHandler):
         self.write(output)
 
     def post(self, *args, **kwargs):
-        output = {'status':'Wrong Command'
+        output = {'status':'Wrong Command',
                     'code':'400'}
         self.set_status(400)
         self.write(output)
