@@ -25,6 +25,7 @@ class Application(tornado.web.Application):
             (r"/login", login),
             (r"/sendticket", sendticket),
             (r"/getticketcli", getticketcli),
+            (r"/closeticket", closeticket),
             (r"/h", h), # testing 
             (r".*", defaulthandler),
         ]
@@ -208,6 +209,26 @@ class h(BaseHandler):
         row = self.db.get("SELECT * from users where username = %s",'amir')
         self.write({'u':row['username']})
 
+# Close Ticket
+class closeticket(BaseHandler):
+    def get(self):
+        token = str(self.get_argument('token'))
+        id = str(self.get_argument('id'))
+
+        if self.check_api(token):
+            self.db.execute("update tickets set status=2 where id=%s",id)
+            output = {
+                'message':'Ticket with id -'+id+'- Closed Successfully',
+                'code':'200',
+            }
+            self.write(output)
+        else:
+            output = {
+                'message':'Invalid token',
+                'code':'401'
+            }
+            self.set_status(401)
+            self.write(output)
 
 
 
