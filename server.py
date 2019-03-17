@@ -7,6 +7,7 @@ import tornado.options
 import os
 from binascii import hexlify
 import tornado.web
+import datetime
 from tornado.options import define, options
 
 define("port", default=6060, help="run on the given port", type=int)
@@ -23,7 +24,8 @@ class Application(tornado.web.Application):
             (r"/signup", signup),
             (r"/login", login),
             (r"/sendticket", sendticket),
-            (r"/h", h),
+            (r"/getticketcli", getticketcli),
+            (r"/h", h), # testing 
             (r".*", defaulthandler),
         ]
         settings = dict()
@@ -139,9 +141,10 @@ class sendticket(BaseHandler):
 
         if self.check_api(token):
             user_id = int(self.db.get("select ID from users where api=%s",token)['ID'])
-            ticket_id = self.db.execute("INSERT INTO tickets (title, body, userID, status) "
-                                     "values (%s,%s,%s,%s) "
-                                     , subject,body,user_id,0)
+            currentDT = datetime.datetime.now()
+            ticket_id = self.db.execute("INSERT INTO tickets (title, body, userID, status, date) "
+                                     "values (%s,%s,%s,%s,%s) "
+                                     , subject,body,user_id,0,currentDT.strftime("%Y-%m-%d %H:%M:%S"))
             output = {
                 'message':'Tikcet Snet Successfully',
                 'id':ticket_id,
@@ -156,7 +159,20 @@ class sendticket(BaseHandler):
             self.set_status(401)
             self.write(output)
         
+# Get Ticket CLI
+class getticketcli(BaseHandler):
+    def get(self):
+        token = str(self.get_argument('token'))
 
+        if self.check_api(token):
+            return
+        else:
+            output = {
+                'message':'Invalid token',
+                'code':'401'
+            }
+            self.set_status(401)
+            self.write(output)
 
 class h(BaseHandler):
     def get(self):
